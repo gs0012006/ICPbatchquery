@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/jar/commons-codec-1.11.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/jar/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/jar/fluent-hc-4.5.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/jar/httpclient-4.5.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/jar/httpclient-cache-4.5.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/jar/httpclient-osgi-4.5.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/jar/httpclient-win-4.5.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/jar/httpcore-4.4.11.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/jar/httpmime-4.5.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/jar/jna-4.5.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/jar/jna-platform-4.5.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/netsfjson/commons-beanutils-1.7.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/netsfjson/commons-collections-3.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/netsfjson/commons-lang-2.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/netsfjson/commons-logging.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/netsfjson/ezmorph-1.0.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/netsfjson/json-lib-2.4-jdk15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/json相关jar包/json.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/json相关jar包/json-lib-2.4-jdk15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/netsfjson/sqlite-jdbc-3.21.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/poi3.7_downcc/poi-3.8/poi-3.8-20120326.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/poi3.7_downcc/poi-3.8/poi-ooxml-3.8-20120326.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/poi3.7_downcc/poi-3.8/poi-ooxml-schemas-3.8-20120326.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zzq/Desktop/commons-io-2.6-bin/commons-io-2.6/commons-io-2.6.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

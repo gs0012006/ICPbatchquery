@@ -2,62 +2,41 @@ package batchquery;
 
 import java.awt.Container;
 import java.awt.GridLayout;
-import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.json.CDL;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.ls.LSInput;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 public class mainUI extends JFrame {
 	
 	JTextField pathTextField;
@@ -65,17 +44,31 @@ public class mainUI extends JFrame {
 	JButton startqueryButton;
 	JButton getqueryresultButton;
 	JButton json2csv;
+	JRadioButton ICPradiobutton;
+	JRadioButton tdkButton;
+	JPanel radioPanel;
+	ButtonGroup group;
 	String selectedfilepath;
+	String selectstatuString;
 	static List<String> weblist; 
-	static String paramString;
+	static ArrayList<String> paramString;
 	static String TaskID;
 	static String resultString;
-	private static String Drivde="org.sqlite.JDBC";
-	
+	static String[][] arrjsonArrayList;
+	private static String ICPURL="http://apidata.chinaz.com/BatchAPI/NewDomain";
+	private static String TDKURL="http://apidata.chinaz.com/BatchAPI/SiteData";
 	public mainUI() {
 	// TODO Auto-generated constructor stub
-		
 		Container c = getContentPane();
+		ICPradiobutton = new JRadioButton("查询ICP");
+		ICPradiobutton.setSelected(true);
+		tdkButton = new JRadioButton("查询tdk");
+		group = new ButtonGroup();
+		group.add(ICPradiobutton);
+		group.add(tdkButton);
+		radioPanel = new JPanel();
+		radioPanel.add(ICPradiobutton);
+		radioPanel.add(tdkButton);
 		pathTextField = new JTextField();
 		openButton = new JButton("打开文件");
 		startqueryButton =new JButton("提交查询任务");
@@ -85,16 +78,54 @@ public class mainUI extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
+				
 				// TODO Auto-generated method stub
+				
 				try {
-					String str=HttpClientPost();
-					JSONObject jsonObj = new JSONObject(str);
-				    String taskString = jsonObj.getString("TaskID");
-				    String reasonString = jsonObj.getString("Reason");
-				    int total=jsonObj.getInt("Total");
-				    JOptionPane.showMessageDialog(null,reasonString+"\n"+"任务ID:"+taskString+"\n"+"成功总条数："+String.valueOf(total)+"\n"+"请稍后查询结果",null, 1);
-				    System.out.println(TaskID);
 					
+					String urlString;
+					if (ICPradiobutton.isSelected()) {
+						
+						urlString = ICPURL;
+						
+						
+					} else {
+						
+						 urlString = TDKURL;
+
+					}
+					arrjsonArrayList=new String[paramString.size()][4];
+					for (int j = 0; j < paramString.size(); j++) {
+						
+					
+						String str=HttpClientPost(urlString,paramString.get(j));
+					
+    					JSONObject jsonObj = new JSONObject(str);
+    					String statuscode = jsonObj.getString("StateCode");
+    				    String taskString = jsonObj.getString("TaskID");
+    				    String reasonString = jsonObj.getString("Reason");
+    				    String total=String.valueOf(jsonObj.getInt("Total"));
+    				    
+    				    arrjsonArrayList[j][0]=statuscode;
+    				    arrjsonArrayList[j][1]=taskString;
+    				    arrjsonArrayList[j][2]=reasonString;
+    				    arrjsonArrayList[j][3]=total;
+    				   //JOptionPane.showMessageDialog(null,reasonString+"\n"+"任务ID:"+taskString+"\n"+"成功总条数："+String.valueOf(total)+"\n"+"请稍后查询结果",null, 1);
+    				    
+    				 
+    					
+						
+				
+					}
+					
+					JOptionPane.showMessageDialog(null,"提交成功,请稍后查看结果",null, 1);
+                    new Taskidlist(arrjsonArrayList);
+                    	
+                    	
+					
+				    
+				    
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -118,6 +149,7 @@ public class mainUI extends JFrame {
 		        	pathTextField.setText(selectedfilepath);
 		            weblist =readtxt(selectedfilepath);
 		            paramString = processlisttoparam(weblist);
+		       //     System.out.println(paramString);
 		            
 		        	
 		        }
@@ -150,16 +182,15 @@ public class mainUI extends JFrame {
 				json2csv(resultString);
 			}
 		});
-		c.setLayout(new GridLayout(5,1));
+		c.setLayout(new GridLayout(6,1));
 		c.add(pathTextField);
 		c.add(openButton);
 		c.add(startqueryButton);
 		c.add(getqueryresultButton);
 		c.add(json2csv);
+		c.add(radioPanel);
 		this.setSize(500, 200);
 		this.setVisible(true);
-		
-		
 		
 	}
 	
@@ -172,7 +203,7 @@ public class mainUI extends JFrame {
 	        //读取文件
 	        List<String> lineLists = null;
 	        try {
-	            System.out.println(fileName);
+	        //   System.out.println(fileName);
 	            lineLists = Files
 	                    .lines(Paths.get(fileName), Charset.defaultCharset())
 	                    .flatMap(line -> Arrays.stream(line.split("\n")))
@@ -184,21 +215,62 @@ public class mainUI extends JFrame {
 	        return  lineLists;
 	    }
 
-	public String processlisttoparam(List<String> list) {
-		
+	public ArrayList<String> processlisttoparam(List<String> list) {
 		String param = "" ;
-       
-		for (String s:list) {
-			param = param +s+"|";
+		ArrayList<String> processedparamArrayList = new ArrayList<String>();
+		String[][] paramarrStrings;
+		int i=0;
+		int y=0;
+		boolean outpoint=false;
+		ArrayList<String> arr2 = new ArrayList<String>();
+		while (true) {
+			
+			
+			
+			for (y=1; y <= 50; y++) {
+				
+        		
+				if (i==list.size()) {
+					
+					if (arr2.isEmpty()) {
+						
+						return processedparamArrayList;
+					}
+					
+					outpoint = true; 
+					break;
+					
+				}
+				arr2.add(list.get(i++));
+			
+			}
+		
+	       
+			for (String s:arr2) {
+				param = param +s+"|";
+			}
+			System.out.println(param.length());
+			param = param.substring(0, param.length() - 1);
+			processedparamArrayList.add(param);
+			
+			param="";
+			arr2.clear();
+	
+			if (outpoint) {
+				
+			}
+			
+			//System.out.println("...");
+			
 		}
 		
 		
-		return param;
+	
 		
 	}
 	
 	
-	public String HttpClientPost() throws Exception {
+	public String HttpClientPost(String URL,String paramString) throws Exception {
 		String reasonString;
 		String taskidString;
 		String total;
@@ -206,7 +278,7 @@ public class mainUI extends JFrame {
 		// 获取默认的请求客户端
 		CloseableHttpClient client = HttpClients.createDefault();
 		// 通过HttpPost来发送post请求
-		HttpPost httpPost = new HttpPost("http://apidata.chinaz.com/BatchAPI/NewDomain");
+		HttpPost httpPost = new HttpPost(URL);
 		/*
 		 * post带参数开始
 		 */
@@ -229,14 +301,15 @@ public class mainUI extends JFrame {
 		CloseableHttpResponse response = client.execute(httpPost);
 		HttpEntity entity = response.getEntity();
 		String str = EntityUtils.toString(entity, "UTF-8");
-		System.out.println(str);
+	//	System.out.println(str);
 		  JSONObject jsonObj = new JSONObject(str);
 	        TaskID = jsonObj.getString("TaskID");
 	        taskidString = jsonObj.getString("TaskID");
 	        reasonString = jsonObj.getString("Reason");
 	        total = String.valueOf(jsonObj.getInt("Total"));
-	        System.out.println(TaskID);
-	        String[] arr = {reasonString,taskidString,total};
+	  //      System.out.println(TaskID);
+	        @SuppressWarnings("unused")
+			String[] arr = {reasonString,taskidString,total};
 		
 		// 关闭
 		response.close();
@@ -271,7 +344,7 @@ public class mainUI extends JFrame {
 		HttpEntity entity = response.getEntity();
 		String str = EntityUtils.toString(entity, "UTF-8");
 		resultString = str;
-		System.out.println(str);
+	//	System.out.println(str);
 	
 		// 关闭
 		response.close();
@@ -280,6 +353,7 @@ public class mainUI extends JFrame {
 	}
 	
 	
+	@SuppressWarnings("deprecation")
 	public void json2csv(String json) {
 		
         JSONObject output;
@@ -289,7 +363,7 @@ public class mainUI extends JFrame {
             String str2 = output.getString("Result");
             output2= new JSONObject(str2);
             JSONArray docs = output2.getJSONArray("Data");
-            File file=new File("c:\\fromJSON.csv");
+            File file=new File("c:\\result.csv");
             String csv = CDL.toString(docs);
             FileUtils.writeStringToFile(file, csv);
         } catch (JSONException e) {

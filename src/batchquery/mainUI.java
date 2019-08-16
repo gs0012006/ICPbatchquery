@@ -54,9 +54,11 @@ public class mainUI extends JFrame {
 	static ArrayList<String> paramString;
 	static String TaskID;
 	static String resultString;
-	static String[][] arrjsonArrayList;
+	static ArrayList<String>taskidArrayList;
+	static String[][] arrjsonArrayList;//表格数据二维数组
 	private static String ICPURL="http://apidata.chinaz.com/BatchAPI/NewDomain";
 	private static String TDKURL="http://apidata.chinaz.com/BatchAPI/SiteData";
+	static String[][] queryresultdata;
 	public mainUI() {
 	// TODO Auto-generated constructor stub
 		Container c = getContentPane();
@@ -163,10 +165,38 @@ public class mainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				try {
-					String str=HttpClientPost2();
-					JSONObject jsonObj = new JSONObject(str);
-				    String reasonString = jsonObj.getString("Reason");
-					JOptionPane.showMessageDialog(null,reasonString+"\n"+"请导出结果",null, 1);
+					taskidArrayList=  new ArrayList<String>();
+					for (int i = 0; i <paramString.size() ; i++) {
+						
+						
+						String str=HttpClientPost2(arrjsonArrayList[i][1]);
+						taskidArrayList.add(str);
+						
+					}
+					
+					queryresultdata = new String[taskidArrayList.size()][3];
+					for (int i = 0; i < taskidArrayList.size(); i++) {
+						
+						JSONObject jsonObj = new JSONObject(taskidArrayList.get(i));
+					    String reasonString = jsonObj.getString("Reason");
+					    String statuscode = String.valueOf(jsonObj.getInt("StateCode"));
+					 /*   JSONObject result=jsonObj.getJSONObject("Result");
+					    String submittime = result.getString("SubmitTime");
+					    String finishtime = result.getString("FinishedTime");
+					    String submitcountString = String.valueOf(result.getInt("SubmitCount"));
+					    String successedcount =String.valueOf(result.getInt("SuccessCount")) ;*/
+					    
+					    queryresultdata[i][1]=arrjsonArrayList[i][1];
+					    queryresultdata[i][0]=statuscode;
+					    queryresultdata[i][2]=reasonString;
+					  /*  queryresultdata[i][3]=submittime;
+					    queryresultdata[i][4]=finishtime;;
+					    queryresultdata[i][5]=submitcountString;
+					    queryresultdata[i][6]=successedcount;*/
+					}
+					
+					new Taskidlist2(queryresultdata);
+					
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -179,7 +209,7 @@ public class mainUI extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				json2csv(resultString);
+				json2csv();
 			}
 		});
 		c.setLayout(new GridLayout(6,1));
@@ -284,7 +314,7 @@ public class mainUI extends JFrame {
 		 */
 		// 第三步：构造list集合，往里面丢数据
 		List<NameValuePair> list = new ArrayList<NameValuePair>();
-		BasicNameValuePair basicNameValuePair = new BasicNameValuePair("key", "a5d90fef0c70482fb3056953ab8aa25b");
+		BasicNameValuePair basicNameValuePair = new BasicNameValuePair("key", "36b4918f04ac41108cbf680fac51ad59");
 		BasicNameValuePair basicNameValuePair2 = new BasicNameValuePair("domainNames", paramString);
 		list.add(basicNameValuePair);
 		list.add(basicNameValuePair2);
@@ -318,7 +348,7 @@ public class mainUI extends JFrame {
 
 	}
 		
-	public String HttpClientPost2() throws Exception {
+	public String HttpClientPost2(String taskid) throws Exception {
 		// 获取默认的请求客户端
 		CloseableHttpClient client = HttpClients.createDefault();
 		// 通过HttpPost来发送post请求
@@ -328,7 +358,7 @@ public class mainUI extends JFrame {
 		 */
 		// 第三步：构造list集合，往里面丢数据
 		List<NameValuePair> list = new ArrayList<NameValuePair>();
-		BasicNameValuePair basicNameValuePair = new BasicNameValuePair("taskid", TaskID);
+		BasicNameValuePair basicNameValuePair = new BasicNameValuePair("taskid", taskid);
 		list.add(basicNameValuePair);
 		// 第二步：我们发现Entity是一个接口，所以只能找实现类，发现实现类又需要一个集合，集合的泛型是NameValuePair类型
 		UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(list);
@@ -354,18 +384,24 @@ public class mainUI extends JFrame {
 	
 	
 	@SuppressWarnings("deprecation")
-	public void json2csv(String json) {
+	public void json2csv() {
 		
         JSONObject output;
         JSONObject output2;
+        
         try {
-            output = new JSONObject(json);
-            String str2 = output.getString("Result");
-            output2= new JSONObject(str2);
-            JSONArray docs = output2.getJSONArray("Data");
-            File file=new File("c:\\result.csv");
-            String csv = CDL.toString(docs);
-            FileUtils.writeStringToFile(file, csv);
+        	for (int i = 0; i < taskidArrayList.size(); i++) {
+        		
+        		 output = new JSONObject(taskidArrayList.get(i));
+                 String str2 = output.getString("Result");
+                 output2= new JSONObject(str2);
+                 JSONArray docs = output2.getJSONArray("Data");
+                 File file=new File("c:\\result"+i+".csv");
+                 String csv = CDL.toString(docs);
+                 FileUtils.writeStringToFile(file, csv);
+        		
+			}
+           
         } catch (JSONException e) {
         	 JOptionPane.showMessageDialog(null,"数据处理失败",null, 1);
         } catch (IOException e) {

@@ -9,6 +9,9 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -47,9 +50,16 @@ public class mainUI extends JFrame {
 	JRadioButton ICPradiobutton;
 	JRadioButton tdkButton;
 	JPanel radioPanel;
+	JPanel radioPanel2;
+	JRadioButton whoisButton;
+	JRadioButton ipinfoButton;
+	JRadioButton zhubanButton;
 	ButtonGroup group;
 	String selectedfilepath;
 	String selectstatuString;
+	static String iplexString = "ips";
+	static String domainlexString = "domainNames";
+	static String companyString = "companyName";
 	static List<String> weblist; 
 	static ArrayList<String> paramString;
 	static String TaskID;
@@ -58,20 +68,42 @@ public class mainUI extends JFrame {
 	static String[][] arrjsonArrayList;//表格数据二维数组
 	private static String ICPURL="http://apidata.chinaz.com/BatchAPI/NewDomain";
 	private static String TDKURL="http://apidata.chinaz.com/BatchAPI/SiteData";
+	private static String WHOISURL="http://apidata.chinaz.com/BatchAPI/Whois";
+	private static String ipnifoURL="http://apidata.chinaz.com/BatchAPI/IP";
+	private static String zhubanURL="http://apidata.chinaz.com/BatchAPI/NewSponsorUnit";
+	JMenuBar jBar;
+	JMenu jMenu;
+	JMenuItem jItem;
+	
+	
 	static String[][] queryresultdata;
 	public mainUI() {
 	// TODO Auto-generated constructor stub
+		jMenu  = new JMenu("帮助");
+		jBar = new JMenuBar();
+		jBar.add(jMenu);
 		Container c = getContentPane();
-		ICPradiobutton = new JRadioButton("查询ICP");
+		ICPradiobutton = new JRadioButton("查询ICP备案信息（实时）");
 		ICPradiobutton.setSelected(true);
-		tdkButton = new JRadioButton("查询tdk");
+		tdkButton = new JRadioButton("查询网站相关信息");
+		whoisButton = new JRadioButton("whois查询");
+	    ipinfoButton = new JRadioButton("查询ip归属");
+	    zhubanButton = new JRadioButton("查询主办单位信息(实时)");
 		group = new ButtonGroup();
 		group.add(ICPradiobutton);
 		group.add(tdkButton);
+		group.add(whoisButton);
+		group.add(ipinfoButton);
+		group.add(zhubanButton);
 		radioPanel = new JPanel();
+		radioPanel2 = new JPanel();
 		radioPanel.add(ICPradiobutton);
 		radioPanel.add(tdkButton);
+		radioPanel.add(whoisButton);
+		radioPanel2.add(ipinfoButton);
+		radioPanel2.add(zhubanButton);
 		pathTextField = new JTextField();
+		pathTextField.setEditable(false);
 		openButton = new JButton("打开文件");
 		startqueryButton =new JButton("提交查询任务");
 		getqueryresultButton =new JButton("获取查询结果");
@@ -86,22 +118,46 @@ public class mainUI extends JFrame {
 				
 				try {
 					
-					String urlString;
+					String urlString = null;
 					if (ICPradiobutton.isSelected()) {
 						
-						urlString = ICPURL;
+						 urlString = ICPURL;
 						
 						
-					} else {
+					}else if (tdkButton.isSelected()) {
 						
 						 urlString = TDKURL;
-
+						
+					}else if (whoisButton.isSelected()) {
+						
+					  	 urlString=WHOISURL;
+						
 					}
-					arrjsonArrayList=new String[paramString.size()][4];
-					for (int j = 0; j < paramString.size(); j++) {
+					else if (ipinfoButton.isSelected()) {
+						 urlString=ipnifoURL;
+					}
+					else if (zhubanButton.isSelected()) {
+						urlString=zhubanURL;
+						
+					}
 						
 					
-						String str=HttpClientPost(urlString,paramString.get(j));
+					arrjsonArrayList=new String[paramString.size()][4];
+					for (int j = 0; j < paramString.size(); j++) {
+					String str;
+					if (ipinfoButton.isSelected()) {
+						
+						str=HttpClientPost(urlString,paramString.get(j),iplexString);
+						
+					} else if (zhubanButton.isSelected()) {
+						str=HttpClientPost(urlString,paramString.get(j),companyString);
+					} 
+
+					else {
+						str=HttpClientPost(urlString,paramString.get(j),domainlexString);
+						
+					}
+                     						
 					
     					JSONObject jsonObj = new JSONObject(str);
     					String statuscode = jsonObj.getString("StateCode");
@@ -130,6 +186,7 @@ public class mainUI extends JFrame {
 				    
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
+					JOptionPane.showMessageDialog(null,"没有数据可提交",null, 1);
 					e1.printStackTrace();
 				}
 				
@@ -159,7 +216,7 @@ public class mainUI extends JFrame {
 				
 			}
 		});
-		getqueryresultButton.addActionListener(new ActionListener() {
+		getqueryresultButton.addActionListener(new ActionListener()  {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -199,7 +256,7 @@ public class mainUI extends JFrame {
 					
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null,"没有结果可查询",null, 1);
 				}
 				
 			}
@@ -212,14 +269,18 @@ public class mainUI extends JFrame {
 				json2csv();
 			}
 		});
-		c.setLayout(new GridLayout(6,1));
+		c.setLayout(new GridLayout(8,1));
+		c.add(jBar);
 		c.add(pathTextField);
 		c.add(openButton);
 		c.add(startqueryButton);
 		c.add(getqueryresultButton);
 		c.add(json2csv);
 		c.add(radioPanel);
-		this.setSize(500, 200);
+		c.add(radioPanel2);
+		this.setSize(500, 300);
+		this.setResizable(false);
+		this.setTitle("网络炒汇平台筛查工具");
 		this.setVisible(true);
 		
 	}
@@ -300,7 +361,7 @@ public class mainUI extends JFrame {
 	}
 	
 	
-	public String HttpClientPost(String URL,String paramString) throws Exception {
+	public String HttpClientPost(String URL,String paramString,String lexString) throws Exception {
 		String reasonString;
 		String taskidString;
 		String total;
@@ -315,7 +376,7 @@ public class mainUI extends JFrame {
 		// 第三步：构造list集合，往里面丢数据
 		List<NameValuePair> list = new ArrayList<NameValuePair>();
 		BasicNameValuePair basicNameValuePair = new BasicNameValuePair("key", "36b4918f04ac41108cbf680fac51ad59");
-		BasicNameValuePair basicNameValuePair2 = new BasicNameValuePair("domainNames", paramString);
+		BasicNameValuePair basicNameValuePair2 = new BasicNameValuePair(lexString, paramString);
 		list.add(basicNameValuePair);
 		list.add(basicNameValuePair2);
 		// 第二步：我们发现Entity是一个接口，所以只能找实现类，发现实现类又需要一个集合，集合的泛型是NameValuePair类型

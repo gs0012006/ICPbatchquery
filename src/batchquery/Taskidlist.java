@@ -37,6 +37,8 @@ public class Taskidlist extends JFrame {
         this.pack();
         this.setLocationRelativeTo(null);
         this.setVisible(true);
+        this.setSize(500,200);
+        
     }
 	
 	

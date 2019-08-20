@@ -16,6 +16,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
@@ -79,6 +81,21 @@ public class mainUI extends JFrame {
 	static String[][] queryresultdata;
 	public mainUI() {
 	// TODO Auto-generated constructor stub
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (InstantiationException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (IllegalAccessException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		jMenu  = new JMenu("帮助");
 		jBar = new JMenuBar();
 		jBar.add(jMenu);
